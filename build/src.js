@@ -12,18 +12,35 @@ var smallcanvas;
     })();
     smallcanvas.HashObject = HashObject;
 })(smallcanvas || (smallcanvas = {}));
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 /**
  * 事件池
  */
 var smallcanvas;
 (function (smallcanvas) {
-    var EventPool = (function () {
-        function EventPool() {
+    var EventObject = (function (_super) {
+        __extends(EventObject, _super);
+        function EventObject(options) {
+            _super.call(this);
+            //options = options || {};
+            //EventObject.eventPool[this.hashCode]=options;
+            this.target = options.target;
+            this.type = options.type;
+            this.successHandle = options.successHandle;
+            this.failHandle = options.failHandle;
         }
-        EventPool.eventPool = {};
-        return EventPool;
-    })();
-    smallcanvas.EventPool = EventPool;
+        EventObject.prototype.remove = function () {
+            delete EventObject.eventPool[this.hashCode];
+        };
+        EventObject.eventPool = {};
+        EventObject.DOMEventHandle = {};
+        return EventObject;
+    })(smallcanvas.HashObject);
+    smallcanvas.EventObject = EventObject;
 })(smallcanvas || (smallcanvas = {}));
 /**
  * DOM
@@ -49,16 +66,11 @@ var smallcanvas;
     })();
     smallcanvas.DOM = DOM;
 })(smallcanvas || (smallcanvas = {}));
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 /**
  * 以图片为基础的显示对象
  */
 /// <reference path="HashObject.ts" />
-/// <reference path="EventPool.ts" />
+/// <reference path="EventObject.ts" />
 /// <reference path="DOM.ts" />
 var smallcanvas;
 (function (smallcanvas) {
@@ -161,16 +173,20 @@ var smallcanvas;
          */
         DisplayObject.prototype.addEventListener = function (type, successHandle, failHandle) {
             var self = this;
-            this.eventPool[type] || (this.eventPool[type] = []);
-            this.eventPool[type].push({
-                x: self.offsetX,
-                y: self.offsetY,
-                width: self.offsetWidth,
-                height: self.offsetHeight,
+            var event = new smallcanvas.EventObject({
+                target: this,
+                //x: self.offsetX,
+                //y: self.offsetY,
+                //width: self.offsetWidth,
+                //height: self.offsetHeight,
                 type: type,
-                successHandle: successHandle,
-                failHandle: failHandle
+                successHandle: successHandle || smallcanvas.defaultHandle,
+                failHandle: failHandle || smallcanvas.defaultHandle
             });
+            this.eventPool[type + successHandle] = event;
+        };
+        DisplayObject.prototype.removeEventListener = function (type, successHandle) {
+            delete this.eventPool[type + successHandle];
         };
         /**
          * 绘制显示对象
@@ -202,19 +218,104 @@ var smallcanvas;
 (function (smallcanvas) {
     function init(dom) {
         //smallcanvas.DOM.canvas=dom||document.querySelector('canvas');
-        render();
+        smallcanvas.mainLoop();
         return smallcanvas;
     }
     smallcanvas.init = init;
+    function mainLoop() {
+        render();
+        bindEvent();
+        window.requestAnimationFrame(smallcanvas.mainLoop);
+    }
+    smallcanvas.mainLoop = mainLoop;
     function render() {
-        for (var disObjIndex in smallcanvas.DisplayPool.DisplayHash) {
-            var disObj = smallcanvas.DisplayPool.DisplayHash[disObjIndex];
+        for (var index in smallcanvas.DisplayPool.DisplayHash) {
+            var item = smallcanvas.DisplayPool.DisplayHash[index];
             smallcanvas.DOM.ctx.clearRect(0, 0, smallcanvas.DOM.canvas['offsetWidth'], smallcanvas.DOM.canvas['offsetHeight']);
-            smallcanvas.DOM.ctx.drawImage(disObj.texture, disObj.offsetX, disObj.offsetY, disObj.offsetWidth, disObj.offsetHeight);
+            smallcanvas.DOM.ctx.drawImage(item.texture, item.offsetX, item.offsetY, item.offsetWidth, item.offsetHeight);
         }
-        window.requestAnimationFrame(smallcanvas.render);
     }
     smallcanvas.render = render;
+    function bindEvent() {
+        var eventTypeHash = {};
+        var EventObject = smallcanvas.EventObject;
+        /**
+         * 遍历显示对象,获得全部需要处理的Event
+         * 并根据type分组暂存至eventTypeHash
+         */
+        for (var index in smallcanvas.DisplayPool.DisplayHash) {
+            var item = smallcanvas.DisplayPool.DisplayHash[index];
+            for (var cIndex in item.eventPool) {
+                var cItem = item.eventPool[cIndex];
+                eventTypeHash[cItem.type] || (eventTypeHash[cItem.type] = []);
+                eventTypeHash[cItem.type].push({
+                    x: cItem.target.x,
+                    y: cItem.target.y,
+                    width: cItem.target.offsetWidth,
+                    height: cItem.target.offsetHeight,
+                    successHandle: cItem.successHandle,
+                    failHandle: cItem.failHandle
+                });
+            }
+        }
+        /**
+         * 将一类事件拼接为一个处理器,并绑定至DOM
+         */
+        for (var type in eventTypeHash) {
+            var eventArray = eventTypeHash[type];
+            EventObject.DOMEventHandle[type] && smallcanvas.DOM.canvas.removeEventListener(type, EventObject.DOMEventHandle[type], false);
+            EventObject.DOMEventHandle[type] = createDomEventHandle(eventArray);
+            smallcanvas.DOM.canvas.addEventListener(type, EventObject.DOMEventHandle[type], false);
+        }
+        /**
+         * 使单点触控,多点触控返回统一的数据
+         * @returns {Array}
+         */
+        function getTouchPosition() {
+            var touchArray = [], canvas = smallcanvas.DOM.canvas, event = window['event'];
+            if (event['offsetX']) {
+                touchArray.push({
+                    x: event['offsetX'] / canvas['offsetWidth'] * canvas['width'],
+                    y: event['offsetY'] / canvas['offsetHeight'] * canvas['height']
+                });
+            }
+            else {
+                var touches = event['touches'];
+                for (var i = 0; i < touches.length; i++) {
+                    touchArray.push({
+                        x: (touches[i]['clientX'] - canvas['offsetLeft']) / canvas['offsetWidth'] * canvas['width'],
+                        y: (touches[i]['clientY'] - canvas['offsetTop']) / canvas['offsetHeight'] * canvas['height']
+                    });
+                }
+            }
+            return touchArray;
+        }
+        /**
+         * 生成DOM事件处理函数
+         * @param eventArray
+         * @returns {function(): undefined}
+         */
+        function createDomEventHandle(eventArray) {
+            var resultFunction = function () {
+                var touchPosArray = getTouchPosition();
+                eventArray.forEach(function (item) {
+                    var isSuccess;
+                    touchPosArray.forEach(function (touchPos) {
+                        if (touchPos.x > item.x && touchPos.x < (item.x + item.width) && touchPos.y > item.y && touchPos.y < (item.y + item.height)) {
+                            isSuccess = true;
+                        }
+                    });
+                    isSuccess ? item.successHandle() : item.failHandle();
+                });
+            };
+            return resultFunction;
+        }
+    }
+    smallcanvas.bindEvent = bindEvent;
+    function defaultHandle() {
+        console.log('这是默认事件');
+    }
+    smallcanvas.defaultHandle = defaultHandle;
 })(smallcanvas || (smallcanvas = {}));
 
 //# sourceMappingURL=src.js.map

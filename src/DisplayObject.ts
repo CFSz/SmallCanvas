@@ -2,7 +2,7 @@
  * 以图片为基础的显示对象
  */
 /// <reference path="HashObject.ts" />
-/// <reference path="EventPool.ts" />
+/// <reference path="EventObject.ts" />
 /// <reference path="DOM.ts" />
 module smallcanvas {
     export class DisplayObject extends smallcanvas.HashObject {
@@ -18,7 +18,7 @@ module smallcanvas {
          * @param anchorY 锚点Y
          * @param scale 缩放倍数
          */
-        public constructor(options) {
+        public constructor(options?) {
             super();
             options = options || {};
             this.texture = new Image();
@@ -103,20 +103,23 @@ module smallcanvas {
          * @param successHandle 判定成功的事件处理
          * @param failHandle 判定失败的事件处理
          */
-        public addEventListener(type, successHandle, failHandle) {
+        public addEventListener(type, successHandle, failHandle?) {
             var self = this;
-            this.eventPool[type] || (this.eventPool[type] = []);
-            this.eventPool[type].push(
-                {
-                    x: self.offsetX,
-                    y: self.offsetY,
-                    width: self.offsetWidth,
-                    height: self.offsetHeight,
-                    type: type,
-                    successHandle: successHandle,
-                    failHandle: failHandle
-                }
-            );
+            var event=new smallcanvas.EventObject({
+                target:this,
+                //x: self.offsetX,
+                //y: self.offsetY,
+                //width: self.offsetWidth,
+                //height: self.offsetHeight,
+                type: type,
+                successHandle: successHandle||smallcanvas.defaultHandle,
+                failHandle: failHandle||smallcanvas.defaultHandle
+            });
+            this.eventPool[type+successHandle]=event;
+        }
+
+        public removeEventListener(type, successHandle){
+            delete this.eventPool[type+successHandle];
         }
 
         /**

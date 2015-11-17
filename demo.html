@@ -3,23 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <title></title>
+    <style>
+        body{
+            text-align: center;
+        }
+        canvas{
+            background: #BCE8F1;
+        }
+    </style>
 </head>
 <body>
-<canvas width="1000" height="1000"></canvas>
+    <canvas width="1000" height="1000"></canvas>
 
+    <script src="build/src.js"></script>
+    <script>
+        (function(){
+            /**
+             * 默认参数
+             * var canvasDom=document.querySelector('canvas');
+             * var configOptions={src:'images/error.png',x:0,y:0,width:100,height:100,anchorX:0,anchorY:0,scale:1}
+             */
+            var sc = smallcanvas.init()//程序入口,接受参数canvasDom
+                ,demoDisplayObject = new sc.DisplayObject()//程序入口,接受参数configOptions
+            demoDisplayObject.addEventListener('click'
+                    ,function(){
+                        alert(1);
+                    }
+                    ,function(){
+                        alert(2);
+                    }
+            );
+            demoDisplayObject.addEventListener('click'
+                    ,function(){
+                        alert('a');
+                    }
+            );
+            demoDisplayObject.removeEventListener('click'
+                    ,function(){
+                        alert(1);
+                    }
+            );
+        })()
 
-<script src="build/src.js"></script>
-<script>
-    (function(){
-        /**
-         * 默认参数
-         * var canvasDom=document.querySelector('canvas');
-         * var configOptions={src:'images/error.png',x:0,y:0,width:100,height:100,anchorX:0,anchorY:0,scale:1}
-         */
-        var sc = smallcanvas.init()//程序入口,接受参数canvasDom
-            ,demoDisplayObject = new sc.DisplayObject()//程序入口,接受参数configOptions
-    })()
+    </script>
 
-</script>
 </body>
 </html>

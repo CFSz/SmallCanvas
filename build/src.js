@@ -1,41 +1,38 @@
 /**
  * 为对象提供一个唯一的标识码
  */
-var sc;
-(function (sc) {
+var smallcanvas;
+(function (smallcanvas) {
     var HashObject = (function () {
         function HashObject() {
             this.hashCode = HashObject.hashCount++;
         }
-
         HashObject.hashCount = 1;
         return HashObject;
     })();
-    sc.HashObject = HashObject;
-})(sc || (sc = {}));
+    smallcanvas.HashObject = HashObject;
+})(smallcanvas || (smallcanvas = {}));
 /**
  * 事件池
  */
-var sc;
-(function (sc) {
+var smallcanvas;
+(function (smallcanvas) {
     var EventPool = (function () {
         function EventPool() {
         }
-
         EventPool.eventPool = {};
         return EventPool;
     })();
-    sc.EventPool = EventPool;
-})(sc || (sc = {}));
+    smallcanvas.EventPool = EventPool;
+})(smallcanvas || (smallcanvas = {}));
 /**
  * DOM
  */
-var sc;
-(function (sc) {
+var smallcanvas;
+(function (smallcanvas) {
     var DOM = (function () {
         function DOM() {
         }
-
         Object.defineProperty(DOM, "canvas", {
             get: function () {
                 return DOM._canvas;
@@ -50,36 +47,34 @@ var sc;
         DOM.ctx = DOM._canvas['getContext']('2d');
         return DOM;
     })();
-    sc.DOM = DOM;
-})(sc || (sc = {}));
+    smallcanvas.DOM = DOM;
+})(smallcanvas || (smallcanvas = {}));
 var __extends = (this && this.__extends) || function (d, b) {
-        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-        function __() {
-            this.constructor = d;
-        }
-
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 /**
  * 以图片为基础的显示对象
  */
 /// <reference path="HashObject.ts" />
 /// <reference path="EventPool.ts" />
 /// <reference path="DOM.ts" />
-var sc;
-(function (sc) {
+var smallcanvas;
+(function (smallcanvas) {
     var DisplayObject = (function (_super) {
         __extends(DisplayObject, _super);
         /**
          * 显示对象,构建世界的基础
          * @param canvas canvasDOM
-         * @param textureSrc 资源地址
+         * @param src 资源地址
          * @param x 目标坐标x
          * @param y 目标坐标y
          * @param width 目标宽度
          * @param height 目标高度
          * @param anchorX 锚点X
          * @param anchorY 锚点Y
+         * @param scale 缩放倍数
          */
         function DisplayObject(options) {
             _super.call(this);
@@ -87,7 +82,7 @@ var sc;
             this.eventPool = {};
             options = options || {};
             this.texture = new Image();
-            this.texture.src = options.textureSrc || 'images/error.png';
+            this.texture.src = options.src || 'images/error.png';
             this.texture.onload = this.textureLoadHandle.bind(this);
             this.texture["ready"] = false;
             this.x = options.x || 0;
@@ -99,7 +94,6 @@ var sc;
             this.scale = options.scale || 1;
             this.init();
         }
-
         /**
          * 初始化
          */
@@ -182,48 +176,45 @@ var sc;
          * 绘制显示对象
          */
         DisplayObject.prototype.appendToStage = function () {
-            sc.DisplayPool.DisplayHash[this.hashCode] = this;
+            smallcanvas.DisplayPool.DisplayHash[this.hashCode] = this;
         };
         return DisplayObject;
-    })(sc.HashObject);
-    sc.DisplayObject = DisplayObject;
-})(sc || (sc = {}));
+    })(smallcanvas.HashObject);
+    smallcanvas.DisplayObject = DisplayObject;
+})(smallcanvas || (smallcanvas = {}));
 /**
  * 显示对象池
  */
-var sc;
-(function (sc) {
+var smallcanvas;
+(function (smallcanvas) {
     var DisplayPool = (function () {
         function DisplayPool() {
         }
-
         DisplayPool.DisplayHash = {};
         return DisplayPool;
     })();
-    sc.DisplayPool = DisplayPool;
-})(sc || (sc = {}));
+    smallcanvas.DisplayPool = DisplayPool;
+})(smallcanvas || (smallcanvas = {}));
 /**
  * 程序入口
  */
-var sc;
-(function (sc) {
+var smallcanvas;
+(function (smallcanvas) {
     function init(dom) {
-        //sc.DOM.canvas=dom||document.querySelector('canvas');
+        //smallcanvas.DOM.canvas=dom||document.querySelector('canvas');
         render();
-        return sc;
+        return smallcanvas;
     }
-
-    sc.init = init;
+    smallcanvas.init = init;
     function render() {
-        for (var disObjIndex in sc.DisplayPool.DisplayHash) {
-            var disObj = sc.DisplayPool.DisplayHash[disObjIndex];
-            sc.DOM.ctx.clearRect(0, 0, sc.DOM.canvas.offsetWidth, sc.DOM.canvas.offsetHeight);
-            sc.DOM.ctx.drawImage(disObj.texture, disObj.offsetX, disObj.offsetY, disObj.offsetWidth, disObj.offsetHeight);
+        for (var disObjIndex in smallcanvas.DisplayPool.DisplayHash) {
+            var disObj = smallcanvas.DisplayPool.DisplayHash[disObjIndex];
+            smallcanvas.DOM.ctx.clearRect(0, 0, smallcanvas.DOM.canvas['offsetWidth'], smallcanvas.DOM.canvas['offsetHeight']);
+            smallcanvas.DOM.ctx.drawImage(disObj.texture, disObj.offsetX, disObj.offsetY, disObj.offsetWidth, disObj.offsetHeight);
         }
-        window.requestAnimationFrame(sc.render);
+        window.requestAnimationFrame(smallcanvas.render);
     }
-
-    sc.render = render;
-})(sc || (sc = {}));
+    smallcanvas.render = render;
+})(smallcanvas || (smallcanvas = {}));
 
 //# sourceMappingURL=src.js.map

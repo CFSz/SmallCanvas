@@ -1,19 +1,34 @@
 /**
  * 程序入口
  */
-module sc {
+module smallcanvas {
     export function init(dom?) {
-        //sc.DOM.canvas=dom||document.querySelector('canvas');
+        //smallcanvas.DOM.canvas=dom||document.querySelector('canvas');
+        return smallcanvas;
+    }
+
+    export function mainLoop(){
         render();
-        return sc;
+        smallcanvas.DOM.canvas.removeEventListener(smallcanvas.eventHandle);
+        smallcanvas.eventHandle=function(){
+            for (var disObjIndex in smallcanvas.DisplayPool.DisplayHash) {
+                var disObj = smallcanvas.DisplayPool.DisplayHash[disObjIndex];
+                disObj.eventPool
+            }
+        }
+        smallcanvas.DOM.canvas.addEventListener(smallcanvas.eventHandle);
+        window.requestAnimationFrame(smallcanvas.mainLoop)
     }
 
     export function render() {
-        for (var disObjIndex in sc.DisplayPool.DisplayHash) {
-            var disObj = sc.DisplayPool.DisplayHash[disObjIndex];
-            sc.DOM.ctx.clearRect(0, 0, sc.DOM.canvas['offsetWidth'], sc.DOM.canvas['offsetHeight']);
-            sc.DOM.ctx.drawImage(disObj.texture, disObj.offsetX, disObj.offsetY, disObj.offsetWidth, disObj.offsetHeight);
+        for (var disObjIndex in smallcanvas.DisplayPool.DisplayHash) {
+            var disObj = smallcanvas.DisplayPool.DisplayHash[disObjIndex];
+            smallcanvas.DOM.ctx.clearRect(0, 0, smallcanvas.DOM.canvas['offsetWidth'], smallcanvas.DOM.canvas['offsetHeight']);
+            smallcanvas.DOM.ctx.drawImage(disObj.texture, disObj.offsetX, disObj.offsetY, disObj.offsetWidth, disObj.offsetHeight);
         }
-        window.requestAnimationFrame(sc.render)
+    }
+
+    export function eventHandle(){
+        console.log('这是默认事件');
     }
 }

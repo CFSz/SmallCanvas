@@ -1,7 +1,7 @@
 /**
  * 事件池
  */
-module sc {
+module smallcanvas {
     export class EventPool {
         public static eventPool = {};
     }

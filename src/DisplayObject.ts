@@ -4,24 +4,25 @@
 /// <reference path="HashObject.ts" />
 /// <reference path="EventPool.ts" />
 /// <reference path="DOM.ts" />
-module sc {
-    export class DisplayObject extends sc.HashObject {
+module smallcanvas {
+    export class DisplayObject extends smallcanvas.HashObject {
         /**
          * 显示对象,构建世界的基础
          * @param canvas canvasDOM
-         * @param textureSrc 资源地址
+         * @param src 资源地址
          * @param x 目标坐标x
          * @param y 目标坐标y
          * @param width 目标宽度
          * @param height 目标高度
          * @param anchorX 锚点X
          * @param anchorY 锚点Y
+         * @param scale 缩放倍数
          */
         public constructor(options) {
             super();
             options = options || {};
             this.texture = new Image();
-            this.texture.src = options.textureSrc || 'images/error.png';
+            this.texture.src = options.src || 'images/error.png';
             this.texture.onload = this.textureLoadHandle.bind(this);
             this.texture["ready"] = false;
             this.x = options.x || 0;
@@ -122,7 +123,7 @@ module sc {
          * 绘制显示对象
          */
         public appendToStage() {
-            sc.DisplayPool.DisplayHash[this.hashCode] = this;
+            smallcanvas.DisplayPool.DisplayHash[this.hashCode] = this;
         }
 
     }

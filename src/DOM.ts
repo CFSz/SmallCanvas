@@ -1,7 +1,7 @@
 /**
  * DOM
  */
-module sc {
+module smallcanvas {
     export class DOM {
         public static _canvas = document.querySelector('canvas') || document.createElement('canvas');
         public static ctx = DOM._canvas['getContext']('2d');

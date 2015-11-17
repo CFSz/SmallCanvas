@@ -7,17 +7,18 @@ module smallcanvas {
             super();
             //options = options || {};
             //EventObject.eventPool[this.hashCode]=options;
-            this.target=options.target;
-            this.type=options.type;
-            this.successHandle=options.successHandle;
-            this.failHandle=options.failHandle;
+            this.target = options.target;
+            this.type = options.type;
+            this.successHandle = options.successHandle;
+            this.failHandle = options.failHandle;
         }
+
         public target;
         public type;
         public successHandle;
         public failHandle;
 
-        public remove(){
+        public remove() {
             delete EventObject.eventPool[this.hashCode];
         }
 

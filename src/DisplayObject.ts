@@ -105,21 +105,21 @@ module smallcanvas {
          */
         public addEventListener(type, successHandle, failHandle?) {
             var self = this;
-            var event=new smallcanvas.EventObject({
-                target:this,
+            var event = new smallcanvas.EventObject({
+                target: this,
                 //x: self.offsetX,
                 //y: self.offsetY,
                 //width: self.offsetWidth,
                 //height: self.offsetHeight,
                 type: type,
-                successHandle: successHandle||smallcanvas.defaultHandle,
-                failHandle: failHandle||smallcanvas.defaultHandle
+                successHandle: successHandle || smallcanvas.defaultHandle,
+                failHandle: failHandle || smallcanvas.defaultHandle
             });
-            this.eventPool[type+successHandle]=event;
+            this.eventPool[type + successHandle + failHandle] = event;
         }
 
-        public removeEventListener(type, successHandle){
-            delete this.eventPool[type+successHandle];
+        public removeEventListener(type, successHandle, failHandle) {
+            delete this.eventPool[type + successHandle + failHandle];
         }
 
         /**

@@ -1,0 +1,9 @@
+{
+  "name": "SmallCanvas",
+  "version": "0.0.1",
+  "devDependencies": {
+    "gulp": "",
+    "gulp-sourcemaps": "",
+    "gulp-typescript": ""
+  }
+}

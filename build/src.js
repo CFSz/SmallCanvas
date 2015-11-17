@@ -183,10 +183,10 @@ var smallcanvas;
                 successHandle: successHandle || smallcanvas.defaultHandle,
                 failHandle: failHandle || smallcanvas.defaultHandle
             });
-            this.eventPool[type + successHandle] = event;
+            this.eventPool[type + successHandle + failHandle] = event;
         };
-        DisplayObject.prototype.removeEventListener = function (type, successHandle) {
-            delete this.eventPool[type + successHandle];
+        DisplayObject.prototype.removeEventListener = function (type, successHandle, failHandle) {
+            delete this.eventPool[type + successHandle + failHandle];
         };
         /**
          * 绘制显示对象

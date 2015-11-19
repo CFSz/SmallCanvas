@@ -223,8 +223,9 @@ var smallcanvas;
     }
     smallcanvas.init = init;
     function mainLoop() {
-        render();
+        smallcanvas.enterFrameHandle();
         bindEvent();
+        render();
         window.requestAnimationFrame(smallcanvas.mainLoop);
     }
     smallcanvas.mainLoop = mainLoop;
@@ -312,6 +313,10 @@ var smallcanvas;
         }
     }
     smallcanvas.bindEvent = bindEvent;
+    function enterFrameHandle() {
+    }
+
+    smallcanvas.enterFrameHandle = enterFrameHandle;
     function defaultHandle() {
         console.log('这是默认事件');
     }

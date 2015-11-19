@@ -9,8 +9,9 @@ module smallcanvas {
     }
 
     export function mainLoop() {
-        render();
+        smallcanvas.enterFrameHandle();
         bindEvent();
+        render();
         window.requestAnimationFrame(smallcanvas.mainLoop)
     }
 
@@ -104,6 +105,9 @@ module smallcanvas {
 
     }
 
+    export function enterFrameHandle() {
+
+    }
 
     export function defaultHandle() {
         console.log('这是默认事件');

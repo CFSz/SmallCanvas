@@ -58,7 +58,7 @@
                 var x, y;
                 x = 16 * Math.pow(Math.sin(t), 3) * 10 + 160;
                 y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) * 10 + 120;
-                return {x: x, y: y}
+                return {x: x*2.5, y: y*2.5}
             }
 
             function circleLine(t) {
@@ -80,8 +80,8 @@
                     console.log(minus);
                 }
                 lastTime = new Date().getTime();
-//                var pos=heartLine(i);
-                var pos = circleLine(i);
+                var pos=heartLine(i);
+//                var pos = circleLine(i);
                 demoDisplayObject.x = pos.x;
                 demoDisplayObject.y = pos.y;
             }
